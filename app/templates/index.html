@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=us-ascii">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+
+	<title>Oasis Blacklist Search</title>
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.10.9/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css">
+
+    <!-- Optional theme -->
+    <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"> -->
+
+
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='main.css') }}">
+    
+    <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
+	<script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.9/js/dataTables.bootstrap.min.js"></script>
+
+	<script type="text/javascript">
+
+        function start_search_task() {
+            // add task status elements
+            div = $('<div class="progress"><div></div><div>Starting Search</div><div></div></div>');
+            $('#progress').append(div);
+
+            // create a progress bar
+            var nanobar = new Nanobar({
+                bg: '#44f',
+                target: div[0].childNodes[0]
+            });
+ 
+            // send ajax POST request to start background search job
+            $.ajax({
+                type: 'POST',
+                data: {'company_name': $("#company_name").val()}, 
+                url: '/search',
+                success: function(data, status, request) {
+                    status_url = request.getResponseHeader('Location');
+                    update_progress(status_url, nanobar, div[0]);
+                },
+                error: function() {
+                    alert('Unexpected error');
+                }
+            });
+        }
+
+        function update_progress(status_url, nanobar, status_div) {
+            // send GET request to status URL
+            $.getJSON(status_url, function(data) {
+                console.log(data);
+                // update UI
+                percent = parseInt(data['current'] * 100 / data['total']);
+                nanobar.go(percent);
+                $(status_div.childNodes[1]).text(data['status']);
+                //$(status_div.childNodes[2]).text(data['status']);
+                if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+                    if ('result' in data) {
+                        percent = 100;
+                        nanobar.go(percent);
+                        $(status_div.childNodes[1]).text(data['status']);
+                        // show result
+                        if (data['result'].length == 0) {
+                           $('#results').text('No Results Found'); 
+                        } else {
+                            console.log(data['result']);
+                            populate_results(status_url, data['result']);
+                        }
+                        // rerun in 2 seconds
+                        setTimeout(function() {
+                            $(status_div).hide();
+                        }, 2000);
+                        //$(status_div.childNodes[3]).text('Result: ' + data['result']);
+                    }
+                    else {
+                        // something unexpected happened
+                        $(status_div.childNodes[3]).text('Result: ' + data['state']);
+                    }
+                }
+                else {
+                    // rerun in 2 seconds
+                    setTimeout(function() {
+                        update_progress(status_url, nanobar, status_div);
+                    }, 2000);
+                }
+            });
+        }
+
+        function populate_results(status_url, results) {
+            var table = $('#results').DataTable( {
+                lengthChange: false,
+                data: results,
+                columns: [
+                    { title: "site" },
+                    { title: "company" },
+                    { title: "country" },
+                    { title: "address" },
+                ],
+                select: true
+            } );
+        }
+
+
+
+        $(document).ready(function() {
+            $("#company_name").focus();
+            //$('#search_status').DataTable();
+            $("#search_button").click(start_search_task);
+        });
+
+	</script>
+
+</head>
+<body>
+<div class="container">
+<div class="margin">
+
+    <h2>Oasis Blacklist Search</h2>
+    <br>
+    
+</div>
+<div class="margin">
+  <div class="button-group clean" id="progress">
+  </div>
+</div>
+<div class="margin">
+  <input type="text" class="form-input" placeholder="Company name..." id='company_name'>
+        <button class="btn btn-info btn-lg" type="button" id="search_button">
+            <i class="glyphicon glyphicon-search"></i>
+        </button>
+</div>
+<div class="margin">
+    <table id="results"></table>
+</div>
+</div>
+</body>
+</html>
