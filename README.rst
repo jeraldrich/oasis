@@ -5,11 +5,11 @@ To extract package::
     - (On Windows) Double click on oasis.tgz
     - the oasis directory will then be created
 
-To install:: 
-    - install python-virtualenv
-    - install redis (this is the message server backend)
-    - go into the oasis directory
+To install (have python-virtualenv installed):: 
     - sh install.sh
+    - sh install-redis.sh
 
 To run::
     - sh run.sh
+    - sh run-redis.sh
+    - sh run-celery.sh
