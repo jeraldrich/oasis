@@ -14,3 +14,4 @@ pytz==2014.10
 redis==2.10.3
 requests==2.7.0
 beautifulsoup4==4.3.2
+lxml==3.4.4
