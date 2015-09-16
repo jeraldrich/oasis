@@ -1,6 +1,6 @@
-company = {
+search_result = {
     'site': '',
-    'company': '',
+    'name': '',
     'address': '',
     'country': '',
 }

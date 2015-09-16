@@ -6,12 +6,11 @@ from flask import Flask, request, render_template, session, flash, redirect, \
     url_for, jsonify
 from celery import Celery
 
-from spiders import worldbank
-from spiders import models
+from spiders import worldbank, interpol
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'top-secret!'
+app.config['SECRET_KEY'] = '05uLn3ffq'
 
 
 # Celery configuration
@@ -27,25 +26,19 @@ celery.conf.update(app.config)
 @celery.task(bind=True)
 def search_task(self, *args, **kwargs):
     """Perform search for each search spider"""
-    company_name = kwargs['company_name']
-    crawler = ['worldbank']
     search_results = []
-    message = ''
-    total = len(crawler) 
-    for i, spider in enumerate(crawler):
-        message = "Searching {}".format(spider)
-        self.update_state(state='PROGRESS',
-                          meta={'current': 25, 'total': 100,
-                                'status': message})
-        results = worldbank.search(company_name=company_name)
-        if results:
-            search_results = results
-        message = 'Searching CIA'.format(spider)
-        self.update_state(state='PROGRESS',
-                          meta={'current': 50, 'total': 100,
-                                'status': message})
-        time.sleep(3)
-       
+    message = "Searching worldbank"
+    self.update_state(state='PROGRESS',
+                      meta={'current': 25,
+                            'total': 100,
+                            'status': message})
+    search_results += worldbank.search(name=kwargs['name'])
+    message = "Searching interpol"
+    self.update_state(state='PROGRESS',
+                      meta={'current': 50,
+                            'total': 100,
+                            'status': message})
+    search_results += interpol.search(name=kwargs['name'])
     return {'current': 100, 'total': 100, 'status': 'Search Complete',
             'result': search_results}
 
@@ -58,8 +51,8 @@ def index():
 @app.route('/search', methods=['POST'])
 def search():
     # process search request
-    company_name = request.form['company_name']
-    task = search_task.apply_async(kwargs={'company_name': company_name})
+    name = request.form['name']
+    task = search_task.apply_async(kwargs={'name': name})
     return jsonify({}), 202, {'Location': url_for('taskstatus',
                                                   task_id=task.id)}
 

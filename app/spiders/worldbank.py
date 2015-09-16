@@ -3,10 +3,10 @@ import sys
 
 from bs4 import BeautifulSoup
 
-from models import company
+from models import search_result
 
 
-def search(company_name=''):
+def search(name=''):
     # search query GET params
     url = 'http://web.worldbank.org/external/default/main'
     params = {
@@ -15,7 +15,7 @@ def search(company_name=''):
         'theSitePK': 84266,
         'contentMDK': 64069844,
         'querycontentMDK': 64069700,
-        'sup_name': company_name,
+        'sup_name': name,
         'supp_country': '',
     }
 
@@ -28,7 +28,7 @@ def search(company_name=''):
         print "worldbank search failed"
         print 'resp is ...'
         print resp.text
-        print sys.exit()
+        return []
 
     # parse results
     soup = BeautifulSoup(resp.text, "lxml")
@@ -45,7 +45,6 @@ def search(company_name=''):
         cols = [ele.text.strip() for ele in cols]
         parsed_row = [ele for ele in cols if ele]
         # first row is table column names
-        # [u'Firm Name', u'Address', u'Country', u'Ineligibility Period', u'Grounds']
         if i == 0:
             columns = parsed_row
             continue
@@ -57,7 +56,7 @@ def search(company_name=''):
         if i == 2 and len(parsed_row) == 1:
             break
         result = ['worldbank', parsed_row[0],
-                  parsed_row[1], parsed_row[2]]
+                  parsed_row[2], parsed_row[1]]
         results.append(result)
     return results
 

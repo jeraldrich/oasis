@@ -23,8 +23,11 @@
     <script src="//cdn.datatables.net/1.10.9/js/dataTables.bootstrap.min.js"></script>
 
 	<script type="text/javascript">
+        var table = $('#results').DataTable();
 
         function start_search_task() {
+            table.destroy();
+            $('#results').text('');
             // add task status elements
             div = $('<div class="progress"><div></div><div>Starting Search</div><div></div></div>');
             $('#progress').append(div);
@@ -38,7 +41,7 @@
             // send ajax POST request to start background search job
             $.ajax({
                 type: 'POST',
-                data: {'company_name': $("#company_name").val()}, 
+                data: {'name': $("#name").val()}, 
                 url: '/search',
                 success: function(data, status, request) {
                     status_url = request.getResponseHeader('Location');
@@ -92,26 +95,28 @@
         }
 
         function populate_results(status_url, results) {
-            var table = $('#results').DataTable( {
+            table = $('#results').DataTable( {
                 lengthChange: false,
                 data: results,
                 columns: [
                     { title: "site" },
-                    { title: "company" },
+                    { title: "name" },
                     { title: "country" },
                     { title: "address" },
                 ],
-                select: true
-            } );
+                select: true,
+                bFilter: false,
+                bPaginate: false,
+            });
         }
 
 
 
         $(document).ready(function() {
-            $("#company_name").focus();
+            $("#name").focus();
             //$('#search_status').DataTable();
             $("#search_button").click(start_search_task);
-            $('#company_name').keypress(function(event) {
+            $('#name').keypress(function(event) {
                 if (event.keyCode == 13) {
                     start_search_task();
                 }
@@ -136,7 +141,7 @@
   </div>
 </div>
 <div class="margin">
-  <input type="text" class="form-input" placeholder="Company name..." id='company_name'>
+  <input type="text" class="form-input" placeholder="Company name..." id='name'>
         <button class="btn btn-info btn-lg" type="button" id="search_button">
             <i class="glyphicon glyphicon-search"></i>
         </button>
