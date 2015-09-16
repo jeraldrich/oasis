@@ -111,7 +111,14 @@
             $("#company_name").focus();
             //$('#search_status').DataTable();
             $("#search_button").click(start_search_task);
+            $('#company_name').keypress(function(event) {
+                if (event.keyCode == 13) {
+                    start_search_task();
+                }
+            });
         });
+        
+
 
 	</script>
 
