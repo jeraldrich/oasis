@@ -43,8 +43,6 @@ def search(name=''):
         # if False is returned, we have gone beyond max
         # pagination
         if parsed_results == False:
-            print 'max page is'
-            print i
             break
         if parsed_results:
             results += parsed_results

@@ -12,14 +12,13 @@ def search(name=''):
     results = []
 
     # perform search query
+    # http://web.worldbank.org/external/default/main?theSitePK=84266&contentMDK=64069844&menuPK=116730&pagePK=64148989&piPK=64148984
     params = {
-        'pagePK': 64148989,
-        'piPK': 64148984,
         'theSitePK': 84266,
         'contentMDK': 64069844,
-        'querycontentMDK': 64069700,
-        'sup_name': name,
-        'supp_country': '',
+        'menuPK': 116730,
+        'pagePK': 64148989,
+        'piPK': 64148984,
     }
     resp = requests.get(
         url,
@@ -60,6 +59,8 @@ def search(name=''):
         parsed_result['name'] = parsed_row[0]
         parsed_result['country'] = parsed_row[2]
         parsed_result['address'] = parsed_row[1]
+        if not name.lower() in parsed_result['name'].lower():
+            continue
         results.append(parsed_result)
 
     return results
