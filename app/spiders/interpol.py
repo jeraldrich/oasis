@@ -18,34 +18,30 @@ def search(name=''):
     # perform search query for first page
     resp = requests.get(base_url)
     if resp.status_code != 200: 
-        print ""
+        print 'interpol search failed'
         print 'resp is ...'
         print resp.text
         return []
-
-    parsed_results = parse_results(resp.text)
-    for r in parsed_results:
-        if name.lower() in r['name'].lower():
-            results.append([
-                r['site'],
-                r['name'],
-                r['address'],
-                r['country'],
-            ])
+    
+    results += parse_results(resp.text, name)
 
     return results
 
 
-def parse_results(results):
+def parse_results(results, name):
     parsed_results = []
 
     soup = BeautifulSoup(results, "lxml")
     spans = soup.findAll("span", {"class" : "titre"})
 
     for i, span in enumerate(spans):
+        parsed_name = span.text.strip()
+        if not parsed_name:
+            continue
+        if not name.lower() in parsed_name.lower():
+            continue
         parsed_result = search_result.copy()
         parsed_result['site'] = 'interpol'
-        parsed_name = span.text.strip()
         parsed_result['name'] = parsed_name
         parsed_results.append(parsed_result)
 

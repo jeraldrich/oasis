@@ -32,13 +32,27 @@ def search_task(self, *args, **kwargs):
                       meta={'current': 25,
                             'total': 100,
                             'status': message})
-    search_results += worldbank.search(name=kwargs['name'])
+    results = worldbank.search(name=kwargs['name'])
+    for result in results:
+        search_results.append([ 
+            result['site'],
+            result['name'],
+            result['country'],
+            result['address'],
+        ])
     message = "Searching interpol"
     self.update_state(state='PROGRESS',
                       meta={'current': 50,
                             'total': 100,
                             'status': message})
-    search_results += interpol.search(name=kwargs['name'])
+    results = interpol.search(name=kwargs['name'])
+    for result in results:
+        search_results.append([ 
+            result['site'],
+            result['name'],
+            result['country'],
+            result['address'],
+        ])
     return {'current': 100, 'total': 100, 'status': 'Search Complete',
             'result': search_results}
 

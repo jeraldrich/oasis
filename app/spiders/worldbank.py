@@ -9,6 +9,9 @@ from models import search_result
 def search(name=''):
     # search query GET params
     url = 'http://web.worldbank.org/external/default/main'
+    results = []
+
+    # perform search query
     params = {
         'pagePK': 64148989,
         'piPK': 64148984,
@@ -18,8 +21,6 @@ def search(name=''):
         'sup_name': name,
         'supp_country': '',
     }
-
-    # perform search query
     resp = requests.get(
         url,
         params=params,
@@ -39,7 +40,6 @@ def search(name=''):
     rows = rows[2:]
     # process results
     columns = []
-    results = []
     for i, row in enumerate(rows):
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
@@ -55,12 +55,17 @@ def search(name=''):
         # if no match to search query
         if i == 2 and len(parsed_row) == 1:
             break
-        result = ['worldbank', parsed_row[0],
-                  parsed_row[2], parsed_row[1]]
-        results.append(result)
+        parsed_result = search_result.copy()
+        parsed_result['site'] = 'worldbank'
+        parsed_result['name'] = parsed_row[0]
+        parsed_result['country'] = parsed_row[2]
+        parsed_result['address'] = parsed_row[1]
+        results.append(parsed_result)
+
     return results
 
 if __name__ == '__main__':
-    search(company_name='HEAVY')
-    search(company_name='test')
+    print search(name='HEAVY')
+    print search(name='heavy')
+    print search(name='test')
     
