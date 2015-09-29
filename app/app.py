@@ -6,7 +6,7 @@ from flask import Flask, request, render_template, session, flash, redirect, \
     url_for, jsonify
 from celery import Celery
 
-from spiders import worldbank, interpol
+from spiders import worldbank, interpol, cia
 
 
 app = Flask(__name__)
@@ -46,6 +46,19 @@ def search_task(self, *args, **kwargs):
                             'total': 100,
                             'status': message})
     results = interpol.search(name=kwargs['name'])
+    for result in results:
+        search_results.append([ 
+            result['site'],
+            result['name'],
+            result['country'],
+            result['address'],
+        ])
+    message = "Searching CIA"
+    self.update_state(state='PROGRESS',
+                      meta={'current': 75,
+                            'total': 100,
+                            'status': message})
+    results = cia.search(name=kwargs['name'])
     for result in results:
         search_results.append([ 
             result['site'],

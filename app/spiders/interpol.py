@@ -6,13 +6,14 @@ from bs4 import BeautifulSoup
 from models import search_result
 
 
+base_url = 'http://www.interpol.int/notice/search/une'
+
 # search page starts with http://www.interpol.int/notice/search/une
 # paginated result = http://www.interpol.int/notice/search/une/(offset)/9
 # http://www.interpol.int/notice/search/une/(offset)/9*2..9*3...9*4
 # get all paginated results until no more results
 # then search for person
 def search(name=''):
-    base_url = 'http://www.interpol.int/notice/search/une'
     results = []
 
     # perform search query for first page

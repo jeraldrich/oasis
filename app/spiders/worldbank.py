@@ -69,4 +69,3 @@ if __name__ == '__main__':
     print search(name='HEAVY')
     print search(name='heavy')
     print search(name='test')
-    
