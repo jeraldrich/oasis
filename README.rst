@@ -1,5 +1,8 @@
 Oasis Gov Bad List Scraper
 --------
+
+Just a fun little project to create a scraper using flask, celery, and redis. Not very efficient, but shows a full stack from js call to http server to background poll processing of search queries.
+
 To extract package::
     - (On Linux / OSX) tar xvf oasis.tgz
     - (On Windows) Double click on oasis.tgz
